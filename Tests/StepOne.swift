@@ -27,7 +27,7 @@ struct Guest: Equatable {
     let id = UUID().uuidString
 }
 
-struct Order {
+struct Order: Equatable {
     
     let guest: Guest
     let price: Int
@@ -59,6 +59,18 @@ class HeavenOfGimbap {
     }
     func calculateOrders(ofGeust guest: Guest) {
         self.totalSales += self.sumOfOrdersPrice(of: guest)
+    }
+    func receipt(ofGeust guest: Guest) -> [Order] {
+        self.orderList.reduce([Order]()) { oldOrderArray, order in
+            if order.guest == guest {
+                var newOrderArray = oldOrderArray
+                newOrderArray.append(order)
+                
+                return newOrderArray
+            } else {
+                return oldOrderArray
+            }
+        }
     }
 }
 

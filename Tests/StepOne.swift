@@ -45,6 +45,7 @@ class Guest {
 
 struct Order {
     
+    let guest: Guest
     let price: Int
 }
 
@@ -53,17 +54,18 @@ extension TestDrivenDevelopmentTests {
     // MARK: 주문 추가
     
     func test_주문을_추가하면_지금까지의_주문_합계를_출력() {
+        let heavenOfGimbap = HeavenOfGimbap()
         let guest = Guest()
-        let oldOrder = Order(price: 1000)
-        guest.addOrder(of: oldOrder)
+        let oldOrder = Order(guest: guest, price: 1000)
+        heavenOfGimbap.addOrder(of: oldOrder)
         // 지금까지의 주문 합계: 1000
-        let sumOfOldOrdersPrice = guest.sumOfOrdersPrice()
-        let newOrder = Order(price: 1000)
+        let sumOfOldOrdersPrice = heavenOfGimbap.sumOfOrdersPrice(of: guest)
+        let newOrder = Order(guest: guest, price: 1000)
         // 새로운 주문 추가
-        guest.addOrder(of: newOrder)
+        heavenOfGimbap.addOrder(of: newOrder)
         
         // 기존 주문합계 + 새주문 가격 == 새로운 주문 추가후의 주문합계
-        XCTAssertEqual(sumOfOldOrdersPrice + newOrder.price, guest.sumOfOrdersPrice())
+        XCTAssertEqual(sumOfOldOrdersPrice + newOrder.price, heavenOfGimbap.sumOfOrdersPrice(of: guest))
     }
     func test_주문이_계산되면_가계의_매출이_상승() {
     }

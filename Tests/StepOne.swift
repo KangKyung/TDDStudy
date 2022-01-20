@@ -58,7 +58,7 @@ class HeavenOfGimbap {
         self.priceList(of: guest).reduce(0) { $0 + $1 }
     }
     func calculateOrders(ofGeust guest: Guest) {
-        totalSales += sumOfOrdersPrice(of: guest)
+        self.totalSales += self.sumOfOrdersPrice(of: guest)
     }
 }
 

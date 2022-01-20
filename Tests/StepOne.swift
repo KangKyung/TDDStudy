@@ -35,7 +35,7 @@ struct Order {
 
 class HeavenOfGimbap {
     
-    var sales: Int = 0
+    var totalSales: Int = 0
     var orderList: [Order] = []
     
     private func priceList(of guest: Guest) -> [Int] {
@@ -56,6 +56,9 @@ class HeavenOfGimbap {
     }
     func sumOfOrdersPrice(of guest: Guest) -> Int {
         self.priceList(of: guest).reduce(0) { $0 + $1 }
+    }
+    func calculateOrders(ofGeust guest: Guest) {
+        totalSales += sumOfOrdersPrice(of: guest)
     }
 }
 

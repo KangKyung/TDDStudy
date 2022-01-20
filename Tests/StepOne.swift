@@ -60,9 +60,9 @@ class HeavenOfGimbap {
     func calculateOrders(ofGeust guest: Guest) {
         self.totalSales += self.sumOfOrdersPrice(of: guest)
     }
-    func receipt(ofGeust guest: Guest) -> [Order] {
+    func receipt(ofGeust calculatedGuest: Guest) -> [Order] {
         self.orderList.reduce([Order]()) { oldOrderArray, order in
-            if order.guest == guest {
+            if order.guest == calculatedGuest {
                 var newOrderArray = oldOrderArray
                 newOrderArray.append(order)
                 
@@ -135,6 +135,7 @@ extension TestDrivenDevelopmentTests {
         // 영수증
         let receipt = heavenOfGimbap.receipt(ofGeust: firstGuest)
         
+        // [첫 번째 주문, 두 번째 주문] == 계산한 주문들이 들어있는 배열
         XCTAssertEqual([firstOrder, secondOrder], receipt)
     }
     func test_손님이_지불하는_액수가_더_많을경우_거스름돈_반환() {

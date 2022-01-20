@@ -104,7 +104,26 @@ extension TestDrivenDevelopmentTests {
         // (첫 번째 주문 가격: 1000) + (두 번째 주문 가격: 2000) == (매출 총액: 3000)
         XCTAssertEqual(firstOrder.price + secondOrder.price, heavenOfGimbap.totalSales)
     }
-    func test_주문이_계산되면_주문목록에_추가() {
+    func test_주문이_계산되면_영수증에_추가() {
+        // 선언 및 초기화
+        let heavenOfGimbap = HeavenOfGimbap()
+        let firstGuest = Guest()
+        
+        // 첫 번째 주문
+        let firstOrder = Order(guest: firstGuest, price: 1000)
+        heavenOfGimbap.addOrder(of: firstOrder)
+        
+        // 두 번째 주문
+        let secondOrder = Order(guest: firstGuest, price: 2000)
+        heavenOfGimbap.addOrder(of: secondOrder)
+        
+        // 주문 계산
+        heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
+        
+        // 영수증
+        let receipt = heavenOfGimbap.receipt(ofGeust: firstGuest)
+        
+        XCTAssertEqual([firstOrder, secondOrder], receipt)
     }
     func test_손님이_지불하는_액수가_더_많을경우_거스름돈_반환() {
     }

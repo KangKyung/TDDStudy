@@ -91,7 +91,7 @@ extension TestDrivenDevelopmentTests {
         let firstGuest = Guest()
         
         // 첫 번째 주문
-        let firstOrder = Order(guest: firstGuest, price: 2000)
+        let firstOrder = Order(guest: firstGuest, price: 1000)
         heavenOfGimbap.addOrder(of: firstOrder)
         
         // 두 번째 주문
@@ -101,7 +101,7 @@ extension TestDrivenDevelopmentTests {
         // 주문 계산
         heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
         
-        // (새주문 가격: 2000) == (매출 총액: 2000)
+        // (첫 번째 주문 가격: 1000) + (두 번째 주문 가격: 2000) == (매출 총액: 3000)
         XCTAssertEqual(firstOrder.price + secondOrder.price, heavenOfGimbap.totalSales)
     }
     func test_주문이_계산되면_주문목록에_추가() {

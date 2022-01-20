@@ -73,6 +73,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C6BE11862799901E00D53988 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		C6BE7A312792AF8F00C2696A = {
 			isa = PBXGroup;
 			children = (
@@ -96,6 +103,7 @@
 		C6BE7A3C2792AF8F00C2696A /* Project */ = {
 			isa = PBXGroup;
 			children = (
+				C6BE11862799901E00D53988 /* Model */,
 				C6BE7A672792AFCF00C2696A /* View */,
 			);
 			path = Project;

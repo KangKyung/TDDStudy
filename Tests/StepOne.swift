@@ -22,15 +22,39 @@ import XCTest
      - 손님이 지불한 돈이 적을 경우 요청 메시지를 리턴 합니다.
  */
 
+struct Guest {
+    
+    var orderList: [Order] = []
+    
+    func sumOfOrdersPrice() -> Int {
+       let priceList = orderList.reduce([Int](), { res, order in
+            var priceArray = res
+            priceArray.append(order.price)
+            return priceArray
+        })
+        
+        return priceList.reduce(0) { $0 + $1 }
+    }
+    mutating func addOrder(of order: Order) {
+        orderList.append(order)
+    }
+}
+
+struct Order {
+    
+    let price: Int
+}
+
 extension TestDrivenDevelopmentTests {
     
     // MARK: 주문 추가
     
     func test_주문을_추가하면_지금까지의_주문_합계를_출력() {
-        let guest = Guest()
+        var guest = Guest()
+        guest.orderList.append(Order(price: 1000))
         // 지금까지의 주문 합계
         let sumOfOldOrdersPrice = guest.sumOfOrdersPrice()
-        let newOrder = Order()
+        let newOrder = Order(price: 1000)
         // 새로운 주문 추가
         guest.addOrder(of: newOrder)
         

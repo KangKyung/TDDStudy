@@ -98,7 +98,7 @@ extension TestDrivenDevelopmentTests {
         heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
         
         // (새주문 가격: 2000) == (매출 총액: 2000)
-        XCTAssertEqual(newOrder.price, heavenOfGimbap.totalSales)
+        XCTAssertEqual(firstOrder.price + secondOrder.price, heavenOfGimbap.totalSales)
     }
     func test_주문이_계산되면_주문목록에_추가() {
     }

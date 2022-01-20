@@ -22,31 +22,41 @@ import XCTest
      - 손님이 지불한 돈이 적을 경우 요청 메시지를 리턴 합니다.
  */
 
-class Guest {
+struct Guest: Equatable {
     
-    private var orderList: [Order] = []
-    
-    private var priceList: [Int] {
-        orderList.reduce([Int](), { priceArray, order in
-            var newPriceArray = priceArray
-            newPriceArray.append(order.price)
-            
-            return newPriceArray
-         })
-    }
-    
-    func sumOfOrdersPrice() -> Int {
-        self.priceList.reduce(0) { $0 + $1 }
-    }
-    func addOrder(of order: Order) {
-        self.orderList.append(order)
-    }
+    let id = UUID().uuidString
 }
 
 struct Order {
     
     let guest: Guest
     let price: Int
+}
+
+class HeavenOfGimbap {
+    
+    var sales: Int = 0
+    var orderList: [Order] = []
+    
+    private func priceList(of guest: Guest) -> [Int] {
+        orderList.reduce([Int](), { priceArray, order in
+            if order.guest == guest {
+                var newPriceArray = priceArray
+                newPriceArray.append(order.price)
+                
+                return newPriceArray
+            } else {
+                return priceArray
+            }
+         })
+    }
+    
+    func addOrder(of order: Order) {
+        self.orderList.append(order)
+    }
+    func sumOfOrdersPrice(of guest: Guest) -> Int {
+        self.priceList(of: guest).reduce(0) { $0 + $1 }
+    }
 }
 
 extension TestDrivenDevelopmentTests {

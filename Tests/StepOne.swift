@@ -27,6 +27,15 @@ extension TestDrivenDevelopmentTests {
     // MARK: 주문 추가
     
     func test_주문을_추가하면_지금까지의_주문_합계를_출력() {
+        let guest = Guest()
+        // 지금까지의 주문 합계
+        let sumOfOldOrdersPrice = guest.sumOfOrdersPrice()
+        let newOrder = Order()
+        // 새로운 주문 추가
+        guest.addOrder(of: newOrder)
+        
+        // 기존 주문합계 + 새주문 가격 == 새로운 주문 추가후의 주문합계
+        XCTAssertEqual(sumOfOldOrdersPrice + newOrder.price, guest.sumOfOrdersPrice())
     }
     func test_주문이_계산되면_가계의_매출이_상승() {
     }

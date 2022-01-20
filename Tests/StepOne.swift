@@ -90,9 +90,13 @@ extension TestDrivenDevelopmentTests {
         let heavenOfGimbap = HeavenOfGimbap()
         let firstGuest = Guest()
         
-        // 새로운 주문
-        let newOrder = Order(guest: firstGuest, price: 2000)
-        heavenOfGimbap.addOrder(of: newOrder)
+        // 첫 번째 주문
+        let firstOrder = Order(guest: firstGuest, price: 2000)
+        heavenOfGimbap.addOrder(of: firstOrder)
+        
+        // 두 번째 주문
+        let secondOrder = Order(guest: firstGuest, price: 2000)
+        heavenOfGimbap.addOrder(of: secondOrder)
         
         // 주문 계산
         heavenOfGimbap.calculateOrders(ofGeust: firstGuest)

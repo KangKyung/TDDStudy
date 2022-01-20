@@ -39,16 +39,16 @@ class HeavenOfGimbap {
     var orderList: [Order] = []
     
     private func priceList(of guest: Guest) -> [Int] {
-        orderList.reduce([Int](), { priceArray, order in
+        self.orderList.reduce([Int]()) { oldPriceArray, order in
             if order.guest == guest {
-                var newPriceArray = priceArray
+                var newPriceArray = oldPriceArray
                 newPriceArray.append(order.price)
                 
                 return newPriceArray
             } else {
-                return priceArray
+                return oldPriceArray
             }
-         })
+        }
     }
     
     func addOrder(of order: Order) {
@@ -64,18 +64,23 @@ extension TestDrivenDevelopmentTests {
     // MARK: 주문 추가
     
     func test_주문을_추가하면_지금까지의_주문_합계를_출력() {
+        // 선언 및 초기화
         let heavenOfGimbap = HeavenOfGimbap()
-        let guest = Guest()
-        let oldOrder = Order(guest: guest, price: 1000)
-        heavenOfGimbap.addOrder(of: oldOrder)
+        let firstGuest = Guest()
+        
         // 지금까지의 주문 합계: 1000
-        let sumOfOldOrdersPrice = heavenOfGimbap.sumOfOrdersPrice(of: guest)
-        let newOrder = Order(guest: guest, price: 1000)
+        heavenOfGimbap.addOrder(of: Order(guest: firstGuest, price: 1000))
+        let sumOfOldOrdersPrice = heavenOfGimbap.sumOfOrdersPrice(of: firstGuest)
+        
         // 새로운 주문 추가
+        let newOrder = Order(guest: firstGuest, price: 2000)
         heavenOfGimbap.addOrder(of: newOrder)
         
-        // 기존 주문합계 + 새주문 가격 == 새로운 주문 추가후의 주문합계
-        XCTAssertEqual(sumOfOldOrdersPrice + newOrder.price, heavenOfGimbap.sumOfOrdersPrice(of: guest))
+        // (기존 주문합계: 1000) + (새주문 가격: 2000) == (새로운 주문 추가후의 주문합계: 3000)
+        XCTAssertEqual(
+            sumOfOldOrdersPrice + newOrder.price,
+            heavenOfGimbap.sumOfOrdersPrice(of: firstGuest)
+        )
     }
     func test_주문이_계산되면_가계의_매출이_상승() {
     }

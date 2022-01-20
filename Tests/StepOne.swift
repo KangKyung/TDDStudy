@@ -83,6 +83,19 @@ extension TestDrivenDevelopmentTests {
         )
     }
     func test_주문이_계산되면_가계의_매출이_상승() {
+        // 선언 및 초기화
+        let heavenOfGimbap = HeavenOfGimbap()
+        let firstGuest = Guest()
+        
+        // 새로운 주문
+        let newOrder = Order(guest: firstGuest, price: 2000)
+        heavenOfGimbap.addOrder(of: newOrder)
+        
+        // 주문 계산
+        heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
+        
+        // (새주문 가격: 2000) == (매출 총액: 2000)
+        XCTAssertEqual(newOrder.price, heavenOfGimbap.totalSales)
     }
     func test_주문이_계산되면_주문목록에_추가() {
     }

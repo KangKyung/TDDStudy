@@ -171,13 +171,10 @@ extension TestDrivenDevelopmentTests {
         let paidPrice = 2000
         firstGuest.wantPay(price: paidPrice)
         
-        XCTAssertThrowsError(try heavenOfGimbap.calculateOrders(ofGeust: firstGuest)) { error in
-            // 주문 계산시 의도된(지불한 금액(2000)과 주문가격(1000)의 차액(1000)에 대한) 에러가 발생하는지 확인한다
-            XCTAssertEqual(
-                error as? CalculateError,
-                CalculateError.amountYouWantToPayIsHigher(differencePrice: 1000)
-            )
-        }
+        heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
+        
+        // 손님이냈던 돈(2000)중 내야하는 돈(1000)과의 차액인 거스름돈(1000)을 돌려받았는지 확인한다
+        XCTAssertEqual(firstGuest.price, paidPrice - firstOrder.price)
     }
     func test_손님이_지불하는_액수가_더_많을경우_상승시킨_매출의_일부를_차감() {
     }

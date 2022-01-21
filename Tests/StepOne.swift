@@ -22,9 +22,17 @@ import XCTest
      - 손님이 지불한 돈이 적을 경우 요청 메시지를 리턴 합니다.
  */
 
-struct Guest: Equatable {
+class Guest: Equatable {
+    static func == (lhs: Guest, rhs: Guest) -> Bool {
+        lhs.id == rhs.id
+    }
     
     let id = UUID().uuidString
+    var price: Int = 0
+    
+    func wantPay(price: Int) {
+        self.price = price
+    }
 }
 
 struct Order: Equatable {
@@ -57,8 +65,12 @@ class HeavenOfGimbap {
     func sumOfOrdersPrice(of guest: Guest) -> Int {
         self.priceList(of: guest).reduce(0) { $0 + $1 }
     }
-    func calculateOrders(ofGeust guest: Guest) {
-        self.totalSales += self.sumOfOrdersPrice(of: guest)
+    func calculateOrders(ofGeust guest: Guest) throws {
+        if sumOfOrdersPrice(of: guest) < guest.price {
+            throw CalculateError.amountYouWantToPayIsHigher(differencePrice: guest.price - sumOfOrdersPrice(of: guest))
+        } else {
+            self.totalSales += self.sumOfOrdersPrice(of: guest)
+        }
     }
     func receipt(ofGeust calculatedGuest: Guest) -> [Order] {
         self.orderList.reduce([Order]()) { oldOrderArray, order in
@@ -72,6 +84,11 @@ class HeavenOfGimbap {
             }
         }
     }
+}
+
+enum CalculateError: Error, Equatable {
+    
+    case amountYouWantToPayIsHigher(differencePrice: Int)
 }
 
 extension TestDrivenDevelopmentTests {
@@ -97,7 +114,7 @@ extension TestDrivenDevelopmentTests {
             heavenOfGimbap.sumOfOrdersPrice(of: firstGuest)
         )
     }
-    func test_주문이_계산되면_가계의_매출이_상승() {
+    func test_주문이_계산되면_가계의_매출이_상승() throws {
         // 선언 및 초기화
         let heavenOfGimbap = HeavenOfGimbap()
         let firstGuest = Guest()
@@ -111,12 +128,12 @@ extension TestDrivenDevelopmentTests {
         heavenOfGimbap.addOrder(of: secondOrder)
         
         // 주문 계산
-        heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
+        try heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
         
         // (첫 번째 주문 가격: 1000) + (두 번째 주문 가격: 2000) == (매출 총액: 3000)
         XCTAssertEqual(firstOrder.price + secondOrder.price, heavenOfGimbap.totalSales)
     }
-    func test_주문이_계산되면_영수증에_추가() {
+    func test_주문이_계산되면_영수증에_추가() throws {
         // 선언 및 초기화
         let heavenOfGimbap = HeavenOfGimbap()
         let firstGuest = Guest()
@@ -130,7 +147,7 @@ extension TestDrivenDevelopmentTests {
         heavenOfGimbap.addOrder(of: secondOrder)
         
         // 주문 계산
-        heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
+        try heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
         
         // 영수증
         let receipt = heavenOfGimbap.receipt(ofGeust: firstGuest)
@@ -153,10 +170,7 @@ extension TestDrivenDevelopmentTests {
         
         XCTAssertThrowsError(try heavenOfGimbap.calculateOrders(ofGeust: firstGuest)) { error in
             // 주문 계산시 의도된 에러가 발생하는지 확인한다
-            XCTAssertEqual(error as? CalculateError, CalculateError.amountYouWantToPayIsHigher)
-            
-            // 지불한 금액(2000)과 주문가격(1000)의 차액(1000) == 거스름돈의 액수(1000)
-            XCTAssertEqual(paidPrice - firstOrder.price, CalculateError.amountYouWantToPayIsHigher.difference)
+            XCTAssertEqual(error as? CalculateError, CalculateError.amountYouWantToPayIsHigher(differencePrice: 1000))
         }
     }
     func test_손님이_지불하는_액수가_더_많을경우_상승시킨_매출의_일부를_차감() {

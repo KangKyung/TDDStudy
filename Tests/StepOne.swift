@@ -67,7 +67,10 @@ class HeavenOfGimbap {
     }
     func calculateOrders(ofGeust guest: Guest) throws {
         if sumOfOrdersPrice(of: guest) < guest.price {
-            throw CalculateError.amountYouWantToPayIsHigher(differencePrice: guest.price - sumOfOrdersPrice(of: guest))
+            throw CalculateError
+                .amountYouWantToPayIsHigher(
+                    differencePrice: guest.price - sumOfOrdersPrice(of: guest)
+                )
         } else {
             self.totalSales += self.sumOfOrdersPrice(of: guest)
         }
@@ -169,8 +172,11 @@ extension TestDrivenDevelopmentTests {
         firstGuest.wantPay(price: paidPrice)
         
         XCTAssertThrowsError(try heavenOfGimbap.calculateOrders(ofGeust: firstGuest)) { error in
-            // 주문 계산시 의도된 에러가 발생하는지 확인한다
-            XCTAssertEqual(error as? CalculateError, CalculateError.amountYouWantToPayIsHigher(differencePrice: 1000))
+            // 주문 계산시 의도된(지불한 금액(2000)과 주문가격(1000)의 차액(1000)에 대한) 에러가 발생하는지 확인한다
+            XCTAssertEqual(
+                error as? CalculateError,
+                CalculateError.amountYouWantToPayIsHigher(differencePrice: 1000)
+            )
         }
     }
     func test_손님이_지불하는_액수가_더_많을경우_상승시킨_매출의_일부를_차감() {

@@ -65,14 +65,12 @@ class HeavenOfGimbap {
     func sumOfOrdersPrice(of guest: Guest) -> Int {
         self.priceList(of: guest).reduce(0) { $0 + $1 }
     }
-    func calculateOrders(ofGeust guest: Guest) throws {
+    func calculateOrders(ofGeust guest: Guest) {
+        self.totalSales += self.sumOfOrdersPrice(of: guest)
+        
         if sumOfOrdersPrice(of: guest) < guest.price {
-            throw CalculateError
-                .amountYouWantToPayIsHigher(
-                    differencePrice: guest.price - sumOfOrdersPrice(of: guest)
-                )
-        } else {
-            self.totalSales += self.sumOfOrdersPrice(of: guest)
+            self.totalSales -= guest.price - sumOfOrdersPrice(of: guest)
+            guest.price = guest.price - sumOfOrdersPrice(of: guest)
         }
     }
     func receipt(ofGeust calculatedGuest: Guest) -> [Order] {
@@ -87,11 +85,6 @@ class HeavenOfGimbap {
             }
         }
     }
-}
-
-enum CalculateError: Error, Equatable {
-    
-    case amountYouWantToPayIsHigher(differencePrice: Int)
 }
 
 extension TestDrivenDevelopmentTests {

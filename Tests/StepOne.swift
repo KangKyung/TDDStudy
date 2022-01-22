@@ -70,11 +70,14 @@ class HeavenOfGimbap {
             }
         }
     }
-    private func checkPaidCorrectMoney(of guest: Guest) {
+    private func checkPaidCorrectMoney(of guest: Guest) throws {
         if self.sumOfOrdersPrice(of: guest) < guest.moneyToPay {
             let change = guest.moneyToPay - sumOfOrdersPrice(of: guest)
             self.totalSales -= change
             guest.change(of: change)
+        } else if self.sumOfOrdersPrice(of: guest) > guest.moneyToPay {
+            let difference = sumOfOrdersPrice(of: guest) - guest.moneyToPay
+            throw CalculateError.amountYouWantToPayIsLower(differencePrice: difference)
         }
     }
     
@@ -84,9 +87,9 @@ class HeavenOfGimbap {
     func sumOfOrdersPrice(of guest: Guest) -> Int {
         self.priceList(of: guest).reduce(0) { $0 + $1 }
     }
-    func calculateOrders(ofGeust guest: Guest) {
+    func calculateOrders(ofGeust guest: Guest) throws {
         self.totalSales += guest.moneyToPay
-        self.checkPaidCorrectMoney(of: guest)
+        try self.checkPaidCorrectMoney(of: guest)
     }
     func receipt(ofGeust calculatedGuest: Guest) -> [Order] {
         self.orderList.reduce([Order]()) { oldOrderArray, order in
@@ -133,7 +136,7 @@ extension TestDrivenDevelopmentTests {
             heavenOfGimbap.sumOfOrdersPrice(of: firstGuest)
         )
     }
-    func test_주문이_계산되면_가계의_매출이_상승() {
+    func test_주문이_계산되면_가계의_매출이_상승() throws {
         // 선언 및 초기화
         let heavenOfGimbap = HeavenOfGimbap()
         let firstGuest = Guest()
@@ -148,12 +151,12 @@ extension TestDrivenDevelopmentTests {
         
         // 주문 계산
         firstGuest.wantPay(price: 3000)
-        heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
+        try heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
         
         // (첫 번째 주문 가격: 1000) + (두 번째 주문 가격: 2000) == (매출 총액: 3000)
         XCTAssertEqual(firstOrder.price + secondOrder.price, heavenOfGimbap.assets())
     }
-    func test_주문이_계산되면_영수증에_추가() {
+    func test_주문이_계산되면_영수증에_추가() throws {
         // 선언 및 초기화
         let heavenOfGimbap = HeavenOfGimbap()
         let firstGuest = Guest()
@@ -167,7 +170,7 @@ extension TestDrivenDevelopmentTests {
         heavenOfGimbap.addOrder(of: secondOrder)
         
         // 주문 계산
-        heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
+        try heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
         
         // 영수증
         let receipt = heavenOfGimbap.receipt(ofGeust: firstGuest)
@@ -175,7 +178,7 @@ extension TestDrivenDevelopmentTests {
         // [첫 번째 주문, 두 번째 주문] == 계산한 주문들이 들어있는 배열
         XCTAssertEqual([firstOrder, secondOrder], receipt)
     }
-    func test_손님이_지불하는_액수가_더_많을경우_거스름돈_반환_및_상승시킨만큼_매출을_차감() {
+    func test_손님이_지불하는_액수가_더_많을경우_거스름돈_반환_및_상승시킨만큼_매출을_차감() throws {
         // 선언 및 초기화
         let heavenOfGimbap = HeavenOfGimbap()
         let firstGuest = Guest()
@@ -186,7 +189,7 @@ extension TestDrivenDevelopmentTests {
         
         // 1000원을 계산해야하는데 2000원을 계산하려는 상황을 가정해본다
         firstGuest.wantPay(price: 2000)
-        heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
+        try heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
         
         // 손님이 가지고있던 돈 10000원에서 2000원을 내고, 1000원을 돌려받아 총 9000원을 가지고있는지 확인한다.
         XCTAssertEqual(firstGuest.assets(), 9000)
@@ -204,8 +207,6 @@ extension TestDrivenDevelopmentTests {
         
         // 2000원을 계산해야하는데 1000원을 계산하려는 상황을 가정해본다
         firstGuest.wantPay(price: 1000)
-        heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
-        
         XCTAssertThrowsError(try heavenOfGimbap.calculateOrders(ofGeust: firstGuest)) { error in
             // 주문 계산시 의도된(지불한 금액(2000)과 주문가격(1000)의 차액(1000)에 대한) 에러가 발생하는지 확인한다
             XCTAssertEqual(

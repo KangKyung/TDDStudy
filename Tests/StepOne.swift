@@ -170,7 +170,7 @@ extension TestDrivenDevelopmentTests {
         // [첫 번째 주문, 두 번째 주문] == 계산한 주문들이 들어있는 배열
         XCTAssertEqual([firstOrder, secondOrder], receipt)
     }
-    func test_손님이_지불하는_액수가_더_많을경우_거스름돈_반환() {
+    func test_손님이_지불하는_액수가_더_많을경우_거스름돈_반환_및_상승시킨만큼_매출을_차감() {
         // 선언 및 초기화
         let heavenOfGimbap = HeavenOfGimbap()
         let firstGuest = Guest()
@@ -187,8 +187,6 @@ extension TestDrivenDevelopmentTests {
         XCTAssertEqual(firstGuest.assets(), 9000)
         // 가계가 1000원의 수익이 생겼는지 확인한다.
         XCTAssertEqual(heavenOfGimbap.assets(), 1000)
-    }
-    func test_손님이_지불하는_액수가_더_많을경우_상승시킨_매출의_일부를_차감() {
     }
     func test_손님이_지불하는_액수가_더_적을경우_요청_메시지_리턴() {
     }

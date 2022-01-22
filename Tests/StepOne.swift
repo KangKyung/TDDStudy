@@ -22,16 +22,28 @@ import XCTest
      - 손님이 지불한 돈이 적을 경우 요청 메시지를 리턴 합니다.
  */
 
-class Guest: Equatable {
-    static func == (lhs: Guest, rhs: Guest) -> Bool {
-        lhs.id == rhs.id
-    }
+class Guest {
     
     let id = UUID().uuidString
-    var price: Int = 0
+    private var funds: Int = 10000
+    var moneyToPay: Int = 0
     
     func wantPay(price: Int) {
-        self.price = price
+        self.funds -= price
+        self.moneyToPay = price
+    }
+    func change(of amountOfChange: Int) {
+        self.funds += amountOfChange
+    }
+    func assets() -> Int {
+        self.funds
+    }
+}
+
+extension Guest: Equatable {
+    
+    static func == (lhs: Guest, rhs: Guest) -> Bool {
+        lhs.id == rhs.id
     }
 }
 
@@ -43,7 +55,7 @@ struct Order: Equatable {
 
 class HeavenOfGimbap {
     
-    var totalSales: Int = 0
+    private var totalSales: Int = 0
     var orderList: [Order] = []
     
     private func priceList(of guest: Guest) -> [Int] {
@@ -58,6 +70,13 @@ class HeavenOfGimbap {
             }
         }
     }
+    private func checkPaidCorrectMoney(of guest: Guest) {
+        if self.sumOfOrdersPrice(of: guest) < guest.moneyToPay {
+            let change = guest.moneyToPay - sumOfOrdersPrice(of: guest)
+            self.totalSales -= change
+            guest.change(of: change)
+        }
+    }
     
     func addOrder(of order: Order) {
         self.orderList.append(order)
@@ -66,12 +85,8 @@ class HeavenOfGimbap {
         self.priceList(of: guest).reduce(0) { $0 + $1 }
     }
     func calculateOrders(ofGeust guest: Guest) {
-        self.totalSales += self.sumOfOrdersPrice(of: guest)
-        
-        if sumOfOrdersPrice(of: guest) < guest.price {
-            self.totalSales -= guest.price - sumOfOrdersPrice(of: guest)
-            guest.price = guest.price - sumOfOrdersPrice(of: guest)
-        }
+        self.totalSales += guest.moneyToPay
+        self.checkPaidCorrectMoney(of: guest)
     }
     func receipt(ofGeust calculatedGuest: Guest) -> [Order] {
         self.orderList.reduce([Order]()) { oldOrderArray, order in
@@ -84,6 +99,9 @@ class HeavenOfGimbap {
                 return oldOrderArray
             }
         }
+    }
+    func assets() -> Int {
+        self.totalSales
     }
 }
 
@@ -110,7 +128,7 @@ extension TestDrivenDevelopmentTests {
             heavenOfGimbap.sumOfOrdersPrice(of: firstGuest)
         )
     }
-    func test_주문이_계산되면_가계의_매출이_상승() throws {
+    func test_주문이_계산되면_가계의_매출이_상승() {
         // 선언 및 초기화
         let heavenOfGimbap = HeavenOfGimbap()
         let firstGuest = Guest()
@@ -124,12 +142,13 @@ extension TestDrivenDevelopmentTests {
         heavenOfGimbap.addOrder(of: secondOrder)
         
         // 주문 계산
-        try heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
+        firstGuest.wantPay(price: 3000)
+        heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
         
         // (첫 번째 주문 가격: 1000) + (두 번째 주문 가격: 2000) == (매출 총액: 3000)
-        XCTAssertEqual(firstOrder.price + secondOrder.price, heavenOfGimbap.totalSales)
+        XCTAssertEqual(firstOrder.price + secondOrder.price, heavenOfGimbap.assets())
     }
-    func test_주문이_계산되면_영수증에_추가() throws {
+    func test_주문이_계산되면_영수증에_추가() {
         // 선언 및 초기화
         let heavenOfGimbap = HeavenOfGimbap()
         let firstGuest = Guest()
@@ -143,7 +162,7 @@ extension TestDrivenDevelopmentTests {
         heavenOfGimbap.addOrder(of: secondOrder)
         
         // 주문 계산
-        try heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
+        heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
         
         // 영수증
         let receipt = heavenOfGimbap.receipt(ofGeust: firstGuest)
@@ -160,14 +179,14 @@ extension TestDrivenDevelopmentTests {
         let firstOrder = Order(guest: firstGuest, price: 1000)
         heavenOfGimbap.addOrder(of: firstOrder)
         
-        // 1000원을 계산해랴하는데 2000원을 계산하려는 상황을 가정해본다
-        let paidPrice = 2000
-        firstGuest.wantPay(price: paidPrice)
-        
+        // 1000원을 계산해야하는데 2000원을 계산하려는 상황을 가정해본다
+        firstGuest.wantPay(price: 2000)
         heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
         
-        // 손님이냈던 돈(2000)중 내야하는 돈(1000)과의 차액인 거스름돈(1000)을 돌려받았는지 확인한다
-        XCTAssertEqual(firstGuest.price, paidPrice - firstOrder.price)
+        // 손님이 가지고있던 돈 10000원에서 2000원을 내고, 1000원을 돌려받아 총 9000원을 가지고있는지 확인한다.
+        XCTAssertEqual(firstGuest.assets(), 9000)
+        // 가계가 1000원의 수익이 생겼는지 확인한다.
+        XCTAssertEqual(heavenOfGimbap.assets(), 1000)
     }
     func test_손님이_지불하는_액수가_더_많을경우_상승시킨_매출의_일부를_차감() {
     }

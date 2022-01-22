@@ -70,14 +70,13 @@ class HeavenOfGimbap {
             }
         }
     }
-    private func checkPaidCorrectMoney(of guest: Guest) throws {
+    private func checkPaidCorrectMoney(of guest: Guest) -> PaidCorrectCheckType {
         if self.sumOfOrdersPrice(of: guest) < guest.moneyToPay {
-            let change = guest.moneyToPay - sumOfOrdersPrice(of: guest)
-            self.totalSales -= change
-            guest.change(of: change)
+            return .paymentIsBig
         } else if self.sumOfOrdersPrice(of: guest) > guest.moneyToPay {
-            let difference = sumOfOrdersPrice(of: guest) - guest.moneyToPay
-            throw CalculateError.amountYouWantToPayIsLower(differencePrice: difference)
+            return .paymentIsSmall
+        } else {
+            return .correct
         }
     }
     
@@ -89,7 +88,18 @@ class HeavenOfGimbap {
     }
     func calculateOrders(ofGeust guest: Guest) throws {
         self.totalSales += guest.moneyToPay
-        try self.checkPaidCorrectMoney(of: guest)
+        
+        switch self.checkPaidCorrectMoney(of: guest) {
+        case .paymentIsBig:
+            let change = guest.moneyToPay - sumOfOrdersPrice(of: guest)
+            self.totalSales -= change
+            guest.change(of: change)
+        case .paymentIsSmall:
+            let difference = sumOfOrdersPrice(of: guest) - guest.moneyToPay
+            throw CalculateError.amountYouWantToPayIsLower(differencePrice: difference)
+        case .correct:
+            print("정상적인 경우")
+        }
     }
     func receipt(ofGeust calculatedGuest: Guest) -> [Order] {
         self.orderList.reduce([Order]()) { oldOrderArray, order in
@@ -111,6 +121,12 @@ class HeavenOfGimbap {
 enum CalculateError: Error, Equatable {
     
     case amountYouWantToPayIsLower(differencePrice: Int)
+}
+
+enum PaidCorrectCheckType {
+    
+    case correct
+    case paymentIsSmall, paymentIsBig
 }
 
 extension TestDrivenDevelopmentTests {

@@ -105,6 +105,11 @@ class HeavenOfGimbap {
     }
 }
 
+enum CalculateError: Error, Equatable {
+    
+    case amountYouWantToPayIsLower(differencePrice: Int)
+}
+
 extension TestDrivenDevelopmentTests {
     
     // MARK: 주문 추가
@@ -189,5 +194,24 @@ extension TestDrivenDevelopmentTests {
         XCTAssertEqual(heavenOfGimbap.assets(), 1000)
     }
     func test_손님이_지불하는_액수가_더_적을경우_요청_메시지_리턴() {
+        // 선언 및 초기화
+        let heavenOfGimbap = HeavenOfGimbap()
+        let firstGuest = Guest()
+        
+        // 첫 번째 주문
+        let firstOrder = Order(guest: firstGuest, price: 2000)
+        heavenOfGimbap.addOrder(of: firstOrder)
+        
+        // 2000원을 계산해야하는데 1000원을 계산하려는 상황을 가정해본다
+        firstGuest.wantPay(price: 1000)
+        heavenOfGimbap.calculateOrders(ofGeust: firstGuest)
+        
+        XCTAssertThrowsError(try heavenOfGimbap.calculateOrders(ofGeust: firstGuest)) { error in
+            // 주문 계산시 의도된(지불한 금액(2000)과 주문가격(1000)의 차액(1000)에 대한) 에러가 발생하는지 확인한다
+            XCTAssertEqual(
+                error as? CalculateError,
+                CalculateError.amountYouWantToPayIsLower(differencePrice: 1000)
+            )
+        }
     }
 }
